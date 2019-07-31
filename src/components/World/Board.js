@@ -11,7 +11,7 @@ const makeGrid = (dimensions) => {
   if (!dimensions) {
     return 'grid: auto auto / auto auto;'
   } else {
-    return ` grid: repeat(${dimensions.x}, minmax(0.5fr, 1fr) ) / repeat(${dimensions.y}, minmax(0.5fr, 1fr));`
+    return `grid: repeat(${dimensions.x}, minmax(50px, 1fr) ) / repeat(${dimensions.y}, minmax(50px, 1fr));`
   }
 }
 

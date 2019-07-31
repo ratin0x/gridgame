@@ -16,5 +16,7 @@ export const Tile = styled(TileBase)`
     max-height: 150px;
     height: auto;
 
+    cursor: ${props => props.config.content === null ? 'default' : 'pointer'};
+
   }
 `
