@@ -1,10 +1,12 @@
 import React from 'react';
 import styled from 'styled-components'
-import { Board, Tile, Player } from './components'
+import { Board, Tile, Player, Vortex } from './components'
+import { LevelOne } from  './data'
 
-const testData = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-]
+const LEFT = 'LEFT'
+const RIGHT = 'RIGHT'
+const UP = 'UP'
+const DOWN = 'DOWN'
 
 class AppBase extends React.Component {
   constructor(props) {
@@ -12,50 +14,97 @@ class AppBase extends React.Component {
 
     this.state = {
       ...props,
-      player: {
-        position: {
-          x: 2,
-          y: 1
-        }
-      },
       map: {
         dimensions: {
           x: 5,
           y: 5
         },
-        items: [
-          { x: 1, y: 1, content: ' ' },
-          { x: 2, y: 1, content: ' ' },
-          { x: 3, y: 1, content: 'o' },
-          { x: 4, y: 1, content: ' ' },
-          { x: 5, y: 1, content: ' ' },
-          { x: 1, y: 2, content: ' ' },
-          { x: 2, y: 2, content: 'o' },
-          { x: 3, y: 2, content: ' ' },
-          { x: 4, y: 2, content: 'o' },
-          { x: 5, y: 2, content: ' ' },
-        ]
-      }
+        items: LevelOne
+      },
+      player: {
+        position: {
+          x: 3,
+          y: 1
+        }
+      },
+      vortex: {
+        position: {
+          x: 3,
+          y: 5,
+          icon: '*'
+        }
+      },
     }
   }
 
   keyEvents = {
-    'ArrowLeft': () => {
+    'ArrowDown': () => {
       let newPlayer = this.state.player
-      newPlayer.position.x = newPlayer.position.x === 1 ? 1 : newPlayer.position.x - 1
+      newPlayer.position.y = newPlayer.position.y === this.state.map.dimensions.y ? newPlayer.position.y : newPlayer.position.y + 1
       this.setState({ player: newPlayer })
     },
-    'ArrowRight': () => {
+    'ArrowUp': () => {
       let newPlayer = this.state.player
-      newPlayer.position.x = newPlayer.position.x === this.state.map.dimensions.x ? newPlayer.position.x : newPlayer.position.x + 1
+      newPlayer.position.y = newPlayer.position.y === 1 ? 1 : newPlayer.position.y - 1
       this.setState({ player: newPlayer })
+    }    
+  }
+
+  moveToTile = (tileConfig) => {
+    let newPlayer = this.state.player
+    newPlayer.position.x = tileConfig.x
+    newPlayer.position.y = tileConfig.y
+
+    if (this.checkValidTarget(tileConfig)) {
+      this.setState({player: newPlayer})
+      if (this.checkCollision(tileConfig)) {
+        console.log('Boom!')
+      }
+      this.moveVortex()
+    } else {
+      console.log(`Can't go there`)
     }
+  }
+
+  checkValidTarget = (tileConfig) => {
+    console.log(`checkValidTarget ${JSON.stringify(tileConfig)}`)
+    if (tileConfig.content === null || tileConfig.content === ' ') {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  checkCollision = (tileConfig) => {
+    console.log('checkCollision')
+    const { playerX, playerY } = this.state.player.position
+    const { vortexX, vortexY } = this.state.vortex.position
+    const dX = vortexX - playerX
+    const dY = vortexY - playerY
+    
+    if ( dX === 0 && dY === 0 ) return true
+
+    return false
+    
+  }
+
+  moveVortex = () => {
+    const { playerX, playerY } = this.state.player.position
+    const { vortexX, vortexY } = this.state.vortex.position
+    const dX = vortexX - playerX
+    const dY = vortexY - playerY
+    console.log('moveVortex')
   }
 
   keyHandler = (event) => {
     console.log('Event')
     const keyAction = this.keyEvents[event.key];
     if (keyAction) keyAction(event);
+  }
+
+  clickHandler = (tileConfig, event) => {
+    console.log(`Click : ${JSON.stringify(tileConfig)}, ${event}`)
+    this.moveToTile(tileConfig)
   }
 
   componentDidMount() {
@@ -73,8 +122,9 @@ class AppBase extends React.Component {
   render() {
     const {
       keyHandler,
+      clickHandler,
       props: { className },
-      state: { dimensions, map, player }
+      state: { dimensions, map, player, vortex }
     } = this
 
     return (
@@ -83,10 +133,11 @@ class AppBase extends React.Component {
           {
             map.items.map((item, index) => {
               // return <span key={`testitem-${index}`}>{item}</span>
-              return <Tile className={className} config={item} />
+              return <Tile className={className} config={item} onClick={(e) => clickHandler(item, e)} />
             })
           }
           <Player position={player.position} />
+          <Vortex position={vortex.position} />
         </Board>
       </div>
     )
