@@ -57,10 +57,10 @@ class AppBase extends React.Component {
 
     if (this.checkValidTarget(tileConfig)) {
       this.setState({ player: newPlayer })
+      this.moveVortex()
       if (this.checkCollision(tileConfig)) {
         console.log('Boom!')
       }
-      this.moveVortex()
     } else {
       console.log(`Can't go there`)
     }
@@ -77,8 +77,11 @@ class AppBase extends React.Component {
 
   checkCollision = (tileConfig) => {
     console.log('checkCollision')
-    const { playerX, playerY } = this.state.player.position
-    const { vortexX, vortexY } = this.state.vortex.position
+    const playerX = this.state.player.position.x
+    const playerY = this.state.player.position.y
+    const vortexX = this.state.vortex.position.x
+    const vortexY = this.state.vortex.position.y
+
     const dX = vortexX - playerX
     const dY = vortexY - playerY
 
@@ -89,12 +92,44 @@ class AppBase extends React.Component {
   }
 
   moveVortex = () => {
-    const { playerX, playerY } = this.state.player.position
-    const { vortexX, vortexY } = this.state.vortex.position
+    const playerX = this.state.player.position.x
+    const playerY = this.state.player.position.y
+    const vortexX = this.state.vortex.position.x
+    const vortexY = this.state.vortex.position.y
+
     const dX = vortexX - playerX
     const dY = vortexY - playerY
     const validTargets = this.getValidTiles(this.state.vortex.position)
-    console.log(`moveVortex ${JSON.stringify(validTargets)}`)
+    let bestTarget
+    // Try and figure out which is the closest square to the player
+    for (const target of validTargets) {
+      if (!bestTarget) {
+        bestTarget = target
+      } else {
+        const pdX = Math.abs(playerX - target.x)
+        const pdY = Math.abs(playerY - target.y)
+
+        const tdX = Math.abs(playerX - bestTarget.x)
+        const tdY = Math.abs(playerY - bestTarget.y)
+
+        if (pdX < tdX || pdY < tdY) {
+          bestTarget = target
+        }
+
+        console.log(`${pdX}, ${pdY}`)
+
+      }
+      let newVortexPosition = this.state.vortex.position
+      newVortexPosition.x = bestTarget.x
+      newVortexPosition.y = bestTarget.y
+      this.setState({
+        vortex: {
+          position: newVortexPosition
+        }
+      })
+
+      console.log(`moveVortex ${JSON.stringify(target)}`)
+    }
   }
 
   getValidTiles = (origin) => {
