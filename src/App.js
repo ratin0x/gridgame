@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components'
 import { Board, Tile, Player, Vortex } from './components'
-import { LevelOne } from  './data'
+import { LevelOne } from './data'
 
 const LEFT = 'LEFT'
 const RIGHT = 'RIGHT'
@@ -47,7 +47,7 @@ class AppBase extends React.Component {
       let newPlayer = this.state.player
       newPlayer.position.y = newPlayer.position.y === 1 ? 1 : newPlayer.position.y - 1
       this.setState({ player: newPlayer })
-    }    
+    }
   }
 
   moveToTile = (tileConfig) => {
@@ -56,7 +56,7 @@ class AppBase extends React.Component {
     newPlayer.position.y = tileConfig.y
 
     if (this.checkValidTarget(tileConfig)) {
-      this.setState({player: newPlayer})
+      this.setState({ player: newPlayer })
       if (this.checkCollision(tileConfig)) {
         console.log('Boom!')
       }
@@ -81,11 +81,11 @@ class AppBase extends React.Component {
     const { vortexX, vortexY } = this.state.vortex.position
     const dX = vortexX - playerX
     const dY = vortexY - playerY
-    
-    if ( dX === 0 && dY === 0 ) return true
+
+    if (dX === 0 && dY === 0) return true
 
     return false
-    
+
   }
 
   moveVortex = () => {
@@ -93,7 +93,29 @@ class AppBase extends React.Component {
     const { vortexX, vortexY } = this.state.vortex.position
     const dX = vortexX - playerX
     const dY = vortexY - playerY
-    console.log('moveVortex')
+    const validTargets = this.getValidTiles(this.state.vortex.position)
+    console.log(`moveVortex ${JSON.stringify(validTargets)}`)
+  }
+
+  getValidTiles = (origin) => {
+    return this.state.map.items.reduce((acc, item) => {
+      // Fast fail for empty squares
+      if (item.content === null || item.content === ' ') return acc
+
+      const oX = origin.x
+      const oY = origin.y
+
+      const validX = { min: Math.max(0, oX - 1), max: Math.min(oX + 1, this.state.map.dimensions.x) }
+      const validY = { min: Math.max(0, oY - 1), max: Math.min(oY + 1, this.state.map.dimensions.y) }
+
+      if (item.x === validX.min || item.x === validX.max) {
+        if (item.y === validY.min || item.y === validY.max) {
+          acc.push(item)
+        }
+      }
+
+      return acc
+    }, [])
   }
 
   keyHandler = (event) => {
