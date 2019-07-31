@@ -1,1 +1,1 @@
-export { LevelOne } from './map'
+export { LevelOne, LevelTwo } from './map'

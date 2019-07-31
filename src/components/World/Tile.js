@@ -11,6 +11,10 @@ export const Tile = styled(TileBase)`
     ${props => props.config.y ? `grid-row-start: ${props.config.y}; grid-row-end: ${props.config.y + 1};` : ''}
     border: 1px solid black;
     background-color: ${props => props.config.content === null || props.config.content === ' ' ? 'black' : 'white'};
+    ${props => props.config.content ? 'border-radius: 50px;' : ''}
+    max-width: 150px;
+    max-height: 150px;
+    height: auto;
+
   }
 `
-

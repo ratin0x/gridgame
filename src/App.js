@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components'
 import { Board, Tile, Player, Vortex } from './components'
-import { LevelOne } from './data'
+import { LevelOne, LevelTwo } from './data'
 
 const LEFT = 'LEFT'
 const RIGHT = 'RIGHT'
@@ -14,23 +14,26 @@ class AppBase extends React.Component {
 
     this.state = {
       ...props,
+      game: {
+        over: false
+      },
       map: {
         dimensions: {
-          x: 5,
-          y: 5
+          x: 7,
+          y: 7
         },
-        items: LevelOne
+        items: LevelTwo
       },
       player: {
         position: {
-          x: 3,
+          x: 4,
           y: 1
         }
       },
       vortex: {
         position: {
-          x: 3,
-          y: 5,
+          x: 4,
+          y: 7,
           icon: '*'
         }
       },
@@ -60,6 +63,7 @@ class AppBase extends React.Component {
       this.moveVortex()
       if (this.checkCollision(tileConfig)) {
         console.log('Boom!')
+        this.setState({ game: { over: true } })
       }
     } else {
       console.log(`Can't go there`)
@@ -206,5 +210,5 @@ export const App = styled(AppBase)`
   // margin: 0.5rem 0.5rem;
 
   background-color: lightgrey;
-  height: 100%;
+  height: 900px;
 `
